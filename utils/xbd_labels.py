@@ -9,7 +9,7 @@ DAMAGE_CLASSES = ["no-damage", "minor-damage", "major-damage", "destroyed"]
 @dataclass
 class BuildingLabel:
     uid: str
-    polygon: list
+    polygon: list[tuple[float, float]]
     damage_class: str
 
 
@@ -34,7 +34,7 @@ def parse_label_file(json_path: str) -> list[BuildingLabel]:
     return labels
 
 
-def compute_class_weights(labels: list[BuildingLabel]) -> dict:
+def compute_class_weights(labels: list[BuildingLabel]) -> dict[str, float]:
     counts = {cls: 0 for cls in DAMAGE_CLASSES}
     for label in labels:
         counts[label.damage_class] += 1
