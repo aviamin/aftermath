@@ -1,0 +1,26 @@
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  manifest: data/processed/manifest.csv
+  crop_size: 224
+  storms:
+    - hurricane-harvey
+    - hurricane-florence
+    - hurricane-matthew
+    - hurricane-michael
+  test_storm: hurricane-michael
+
+model:
+  backbone: resnet18
+  pretrained: true
+  num_classes: 4
+  classes: [no-damage, minor-damage, major-damage, destroyed]
+
+training:
+  batch_size: 32
+  epochs: 30
+  learning_rate: 0.0001
+  early_stopping_patience: 5
+
+paths:
+  best_weights: models/best.pt
