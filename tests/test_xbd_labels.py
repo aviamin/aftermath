@@ -49,6 +49,25 @@ def test_parse_label_file_drops_unclassified(tmp_path):
     assert labels[0].uid == "b2"
 
 
+def test_parse_label_file_keeps_buildings_missing_subtype(tmp_path):
+    # Real xBD pre-disaster label files omit "subtype" entirely (damage is
+    # undefined before the disaster) — these buildings must still be
+    # returned (with damage_class=None) so they can be matched by uid.
+    features = [
+        {
+            "properties": {"uid": "c1", "feature_type": "building"},
+            "wkt": "POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0))",
+        },
+    ]
+    path = _write_label_json(tmp_path, features)
+
+    labels = parse_label_file(path)
+
+    assert len(labels) == 1
+    assert labels[0].uid == "c1"
+    assert labels[0].damage_class is None
+
+
 def test_compute_class_weights_favors_rare_classes():
     labels = (
         [BuildingLabel(uid=f"n{i}", polygon=[], damage_class="no-damage") for i in range(80)]
