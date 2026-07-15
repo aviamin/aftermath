@@ -69,3 +69,29 @@ def test_gradcam_activation_order_matches_pre_then_post():
     assert torch.allclose(cam_tool.activations[0].detach(), expected_pre_activation, atol=1e-5)
     assert torch.allclose(cam_tool.activations[1].detach(), expected_post_activation, atol=1e-5)
     assert not torch.allclose(expected_pre_activation, expected_post_activation, atol=1e-4)
+
+
+def test_gradcam_branch_selection_uses_correctly_paired_activation():
+    model = SiameseDamageNet(num_classes=4, pretrained=False)
+    model.eval()
+    target_layer = model.backbone.layer4[-1]
+    cam_tool = GradCAM(model, target_layer)
+
+    pre = torch.zeros(1, 3, 224, 224)
+    post = torch.ones(1, 3, 224, 224)
+
+    pre_cam = cam_tool.generate(pre, post, target_class=0, branch="pre")
+    post_cam = cam_tool.generate(pre, post, target_class=0, branch="post")
+
+    # With model.eval() and a freshly-constructed (never-trained) resnet18,
+    # an all-zeros input propagates as exactly zero through every bias-free
+    # conv + BatchNorm (default running_mean=0/running_var=1/affine identity)
+    # + ReLU + residual stage, so layer4's output for `pre` is an all-zero
+    # activation tensor. The einsum of ANY gradient against an all-zero
+    # activation is zero, so `branch="pre"` must produce an exactly all-zero
+    # CAM if (and only if) it is correctly paired with `pre`'s activation.
+    # If `act_idx` were swapped, branch="pre" would incorrectly read post's
+    # non-zero activation and produce a non-zero CAM instead -- this test
+    # would then fail.
+    assert np.allclose(pre_cam, 0.0)
+    assert not np.allclose(post_cam, 0.0)
