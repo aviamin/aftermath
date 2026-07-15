@@ -40,3 +40,32 @@ def test_resize_cam_upsamples_to_target_size():
     resized = resize_cam(cam, size=224)
 
     assert resized.shape == (224, 224)
+
+
+def test_gradcam_activation_order_matches_pre_then_post():
+    model = SiameseDamageNet(num_classes=4, pretrained=False)
+    model.eval()
+    target_layer = model.backbone.layer4[-1]
+
+    # Independent probe hook (separate from GradCAM's own hook) to capture
+    # ground-truth layer4 outputs for each input processed in isolation.
+    probe_activations = []
+
+    def probe_hook(module, input, output):
+        probe_activations.append(output.detach().clone())
+
+    handle = target_layer.register_forward_hook(probe_hook)
+    with torch.no_grad():
+        model.backbone(torch.zeros(1, 3, 224, 224))
+        model.backbone(torch.ones(1, 3, 224, 224))
+    handle.remove()
+    expected_pre_activation, expected_post_activation = probe_activations
+
+    cam_tool = GradCAM(model, target_layer)
+    pre = torch.zeros(1, 3, 224, 224)
+    post = torch.ones(1, 3, 224, 224)
+    cam_tool.generate(pre, post, target_class=0, branch="post")
+
+    assert torch.allclose(cam_tool.activations[0].detach(), expected_pre_activation, atol=1e-5)
+    assert torch.allclose(cam_tool.activations[1].detach(), expected_post_activation, atol=1e-5)
+    assert not torch.allclose(expected_pre_activation, expected_post_activation, atol=1e-4)
