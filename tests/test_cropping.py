@@ -19,3 +19,12 @@ def test_crop_and_resize_clips_polygon_to_image_bounds():
     crop = crop_and_resize(image, polygon, size=224)
 
     assert crop.shape == (224, 224, 3)
+
+
+def test_crop_and_resize_handles_polygon_entirely_outside_image():
+    image = np.random.randint(0, 255, size=(50, 50, 3), dtype=np.uint8)
+    polygon = [(300.0, 300.0), (300.0, 400.0), (400.0, 400.0), (400.0, 300.0)]
+
+    crop = crop_and_resize(image, polygon, size=224)
+
+    assert crop.shape == (224, 224, 3)
