@@ -31,33 +31,33 @@ generalization to a storm the model has never seen.
 
 ## Results
 
-**Macro-F1: 0.297** on the fully held-out Hurricane Michael test storm
+**Macro-F1: 0.312** on the fully held-out Hurricane Michael test storm
 (22,454 buildings, never seen during training).
 
 ```
               precision    recall  f1-score   support
 
-   no-damage       0.72      0.49      0.59     14588
-minor-damage       0.27      0.54      0.36      5207
-major-damage       0.09      0.04      0.05      1902
-   destroyed       0.14      0.29      0.19       757
+   no-damage       0.72      0.65      0.68     14588
+minor-damage       0.29      0.39      0.33      5207
+major-damage       0.14      0.03      0.05      1902
+   destroyed       0.13      0.35      0.18       757
 
-    accuracy                           0.46     22454
-   macro avg       0.31      0.34      0.30     22454
-weighted avg       0.55      0.46      0.48     22454
+    accuracy                           0.53     22454
+   macro avg       0.32      0.35      0.31     22454
+weighted avg       0.55      0.53      0.53     22454
 ```
 
-**What this actually means:** the model does well on `no-damage` (f1 0.59,
-the majority class) and does relatively well on `destroyed` (f1 0.19,
-despite being the rarest class — plausibly because destroyed buildings
-have the most visually distinctive before/after difference). But it has
-essentially collapsed toward over-predicting `minor-damage` across the
-board, which drags `major-damage` recall down to near zero (0.04) — the
-model confuses `major-damage` with `minor-damage` far more often than it
-correctly identifies major damage. This is explainable by (a) severe class
-imbalance in training (`major-damage`/`destroyed` are minority classes in
-all three training storms) and (b) genuine cross-storm domain shift
-(Hurricane Michael's damage signatures were never seen in training).
+**What this actually means:** the model is clearly best at `no-damage`
+(f1 0.68, the majority class) and does relatively well at `destroyed`
+(f1 0.18, despite being the rarest class — plausibly because destroyed
+buildings have the most visually distinctive before/after difference).
+It still confuses `major-damage` with `minor-damage` far more often than
+it correctly identifies major damage (recall 0.03), and `minor-damage`
+itself is only middling (f1 0.33). This is explainable by (a) severe
+class imbalance in training (`major-damage`/`destroyed` are minority
+classes in all three training storms) and (b) genuine cross-storm domain
+shift (Hurricane Michael's damage signatures were never seen in
+training).
 
 For context, a trivial baseline that always predicts `no-damage` would
 score macro-F1 ≈ 0.197. This model beats that floor by a real margin,
@@ -65,6 +65,37 @@ showing it learned something beyond the class prior — just not enough to
 reliably separate the two more severe damage tiers. That is the model's
 honest, current limitation: it's a meaningfully-better-than-baseline
 damage detector, not yet a reliable damage-severity grader.
+
+### Iteration: three real training runs, not just one
+
+The first training run overfit badly (see the loss curve pattern
+below), and fixing it took actual experimentation rather than one
+lucky guess:
+
+| | v1 (baseline) | v2 (+ weight decay) | v3 (final) |
+|---|---|---|---|
+| Augmentation + normalization | no | yes | yes |
+| Weight decay | — | yes | no |
+| Epochs before early stop | 8 | 16 | 15 |
+| Best val loss | 0.7801 | 0.7253 | **0.7240** |
+| Train/val gap, final epoch | 1.09 (bad) | 0.16 | 0.18 |
+| **Macro-F1 (held-out)** | 0.297 | 0.272 | **0.312** |
+
+v1 had no data augmentation or input normalization at all — a real gap
+against the original design, not a deliberate choice — and it
+overfit hard: validation loss bottomed out at epoch 2 and rose every
+epoch after. Adding random flip/rotation augmentation and
+ImageNet-mean/std normalization (v2) fixed the overfitting (a much
+flatter, healthier curve, twice as many epochs before stopping) but,
+surprisingly, made the actual held-out metric *worse* — adding Adam
+weight decay on top restricted model capacity precisely where the
+minority damage classes needed it most. Removing the weight decay
+while keeping augmentation and normalization (v3) kept the healthy
+training curve **and** improved macro-F1 past the original baseline.
+The lesson: a healthier training curve doesn't automatically mean a
+better model, and isolating one hyperparameter at a time is what
+surfaced that weight decay — not the augmentation/normalization
+fix — was actually hurting things.
 
 ### Class Distribution
 
@@ -79,6 +110,10 @@ equally) is the headline metric rather than plain accuracy.
 ### Training Curves
 
 ![Training curves](docs/training_curves.png)
+
+This is the final (v3) run's curve — train and validation loss track
+each other closely throughout, with no sign of the runaway overfitting
+seen in the first attempt (see "Iteration" above).
 
 ### Confusion Matrix (held-out Hurricane Michael)
 
@@ -107,19 +142,19 @@ on the examples it got wrong.
 
 ### Training on Kaggle (no local GPU)
 
-This development machine has no CUDA GPU. A CPU benchmark showed the full
-training split would take many hours per epoch locally, so training was
-run instead on a free Kaggle GPU kernel
+This development machine has no CUDA GPU. CPU training would be
+impractically slow for a full end-to-end ResNet18 fine-tune over this
+much data, so training was run instead on a free Kaggle GPU kernel
 ([`aviamin/aftermath-full-training`](https://www.kaggle.com/code/aviamin/aftermath-full-training), GPU T4 x2)
 against the same xBD data — training on the full (non-subsampled)
 33,600-row train / 8,400-row validation split.
 
-Best validation loss was **0.7801 at epoch 2**; early stopping triggered
-at epoch 7 after 5 non-improving epochs. Overfitting past epoch 2 is
-expected here, since this is full end-to-end fine-tuning with no frozen
-layers — the saved checkpoint (`models/best.pt`, not tracked in git;
-see `.gitignore`) is frozen at epoch 2's weights, not the later overfit
-ones.
+The final (v3) run's best validation loss was **0.7240 at epoch 9**;
+early stopping triggered at epoch 15 after 5 non-improving epochs. The
+saved checkpoint (`models/best.pt`, not tracked in git; see
+`.gitignore`) is frozen at epoch 9's weights. See "Iteration" above for
+the two earlier training attempts and why this version (augmentation +
+ImageNet normalization, no weight decay) was kept.
 
 The raw Kaggle kernel log is archived at
 [`docs/kaggle_training_log.txt`](docs/kaggle_training_log.txt) for anyone
