@@ -46,17 +46,3 @@ def parse_label_file(json_path: str) -> list[BuildingLabel]:
             )
         )
     return labels
-
-
-def compute_class_weights(labels: list[BuildingLabel]) -> dict[str, float]:
-    counts = {cls: 0 for cls in DAMAGE_CLASSES}
-    for label in labels:
-        counts[label.damage_class] += 1
-
-    total = sum(counts.values())
-    num_classes = len(DAMAGE_CLASSES)
-    weights = {}
-    for cls in DAMAGE_CLASSES:
-        count = max(counts[cls], 1)
-        weights[cls] = total / (num_classes * count)
-    return weights

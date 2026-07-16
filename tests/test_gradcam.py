@@ -72,6 +72,11 @@ def test_gradcam_activation_order_matches_pre_then_post():
 
 
 def test_gradcam_branch_selection_uses_correctly_paired_activation():
+    # Seeded: whether post's ReLU-clipped CAM is non-zero depends on the
+    # random init, so an unseeded run is flaky (~1-in-6 failure rate
+    # observed across seeds 0-29). Seed 42 deterministically produces a
+    # non-zero post_cam, which is what this test needs to be meaningful.
+    torch.manual_seed(42)
     model = SiameseDamageNet(num_classes=4, pretrained=False)
     model.eval()
     target_layer = model.backbone.layer4[-1]

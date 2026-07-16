@@ -1,6 +1,6 @@
 import json
 import pytest
-from utils.xbd_labels import DAMAGE_CLASSES, BuildingLabel, parse_label_file, compute_class_weights
+from utils.xbd_labels import DAMAGE_CLASSES, BuildingLabel, parse_label_file
 
 
 def _write_label_json(tmp_path, features):
@@ -66,15 +66,3 @@ def test_parse_label_file_keeps_buildings_missing_subtype(tmp_path):
     assert len(labels) == 1
     assert labels[0].uid == "c1"
     assert labels[0].damage_class is None
-
-
-def test_compute_class_weights_favors_rare_classes():
-    labels = (
-        [BuildingLabel(uid=f"n{i}", polygon=[], damage_class="no-damage") for i in range(80)]
-        + [BuildingLabel(uid=f"d{i}", polygon=[], damage_class="destroyed") for i in range(4)]
-    )
-
-    weights = compute_class_weights(labels)
-
-    assert set(weights.keys()) == set(DAMAGE_CLASSES)
-    assert weights["destroyed"] > weights["no-damage"]
