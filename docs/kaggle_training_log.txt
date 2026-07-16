@@ -1,11 +1,21 @@
 Raw log from the Kaggle kernel run that produced notebooks/03_model.ipynb's
 outputs and models/best.pt.
 
-Kernel: aviamin/aftermath-full-training (version 5)
+Kernel: aviamin/aftermath-full-training (version 6)
 Kernel URL: https://www.kaggle.com/code/aviamin/aftermath-full-training
 Dataset: aviamin/aftermath-xbd-hurricanes-raw
 Accelerator: GPU T4 x2
 Retrieved via: kaggle kernels output aviamin/aftermath-full-training
+
+This is the second training run, adding data augmentation (random flip +
+90-degree rotation), ImageNet input normalization, and Adam weight decay
+versus the first run (whose log is preserved in git history at the commit
+that added it, "docs: archive raw Kaggle training log for independent
+verification") -- these changes targeted the overfitting seen in the first
+run (val loss bottomed at epoch 2, rose every epoch after). This run trains
+for 16 epochs (vs. 8) before early stopping, with a much smaller train/val
+gap throughout, and a better best validation loss (0.7253 @ epoch 10, vs.
+0.7801 @ epoch 2 previously).
 
 --- log start ---
 stderr | 0.00s - Debugger warning: It seems that frozen modules are being used, which may
@@ -22,36 +32,38 @@ stdout | Writing utils/prepare.py
 stdout | Writing utils/dataset.py
 stdout | Writing utils/model.py
 stdout | Writing utils/training.py
+stdout | Writing utils/transforms.py
 stdout | device: cuda
 stdout | train_storms: ['hurricane-harvey', 'hurricane-florence', 'hurricane-matthew']
 stdout | test_storms: ['hurricane-michael']
 stdout | Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth
-stderr |   0%|          | 0.00/44.7M [00:00<?, ?B/s]
-stderr |   0%|          | 0.00/44.7M [00:00<?, ?B/s] 22%|##2       | 9.88M/44.7M [00:00<00:00, 103MB/s]
-stderr |  22%|##2       | 9.88M/44.7M [00:00<00:00, 103MB/s] 57%|#####7    | 25.4M/44.7M [00:00<00:00, 138MB/s]
-stderr |  57%|#####7    | 25.4M/44.7M [00:00<00:00, 138MB/s] 93%|#########3| 41.4M/44.7M [00:00<00:00, 151MB/s]
-stderr |  93%|#########3| 41.4M/44.7M [00:00<00:00, 151MB/s]100%|##########| 44.7M/44.7M [00:00<00:00, 147MB/s]
-stderr | 100%|##########| 44.7M/44.7M [00:00<00:00, 147MB/s]
 stdout | probe forward pass ok, output shape: torch.Size([2, 4])
 stdout | Total crops: 64454
 stdout | train rows: 33600 val rows: 8400
-stdout | epoch 0 : train_loss= 0.94800334805534 val_loss= 0.8099219886461894
-stdout | epoch 1 : train_loss= 0.7992585824784778 val_loss= 0.8017706026349749
-stdout | epoch 2 : train_loss= 0.707374442531949 val_loss= 0.7800887305395944
-stdout | epoch 3 : train_loss= 0.6057722326261656 val_loss= 0.8309280492010571
-stdout | epoch 4 : train_loss= 0.48197597397225245 val_loss= 0.8961784068743388
-stdout | epoch 5 : train_loss= 0.38038259071253594 val_loss= 1.0900312617279235
-stdout | epoch 6 : train_loss= 0.28970884531381585 val_loss= 1.143996327377501
-stdout | epoch 7 : train_loss= 0.23178700180990355 val_loss= 1.3199674604620253
+stdout | epoch 0 : train_loss= 0.9724447774887085 val_loss= 0.8631836037408738
+stdout | epoch 1 : train_loss= 0.8533719256946019 val_loss= 0.8120048018864223
+stdout | epoch 2 : train_loss= 0.8097594476881481 val_loss= 0.7637597557476589
+stdout | epoch 3 : train_loss= 0.7727827948615664 val_loss= 0.7664180546147483
+stdout | epoch 4 : train_loss= 0.7455609099637894 val_loss= 0.7916145419506799
+stdout | epoch 5 : train_loss= 0.7266557226010731 val_loss= 0.7451305974097479
+stdout | epoch 6 : train_loss= 0.7119057002947444 val_loss= 0.7858797606967745
+stdout | epoch 7 : train_loss= 0.6874458002476466 val_loss= 0.73744620572953
+stdout | epoch 8 : train_loss= 0.6783045968839101 val_loss= 0.7447145112923214
+stdout | epoch 9 : train_loss= 0.6626684360277085 val_loss= 0.7641760743799664
+stdout | epoch 10 : train_loss= 0.6488685919983046 val_loss= 0.7252554579575856
+stdout | epoch 11 : train_loss= 0.6361542839663369 val_loss= 0.7459246670064472
+stdout | epoch 12 : train_loss= 0.6242799411217371 val_loss= 0.7405659458183107
+stdout | epoch 13 : train_loss= 0.6044985501681055 val_loss= 0.7525475180149078
+stdout | epoch 14 : train_loss= 0.5871434078046254 val_loss= 0.8355496784618922
+stdout | epoch 15 : train_loss= 0.5844212974253155 val_loss= 0.7455646358217511
 stdout | Early stopping triggered
 stderr | /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
 stderr |   cells[i][c] = re.sub('\\\\\|', '|', cell)
 stderr | /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
-stderr |   text = re.sub(r'_', '\_', text) # Escape underscores in display text
 stderr | [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
-stderr | [NbConvertApp] Writing 60304 bytes to __notebook__.ipynb
+stderr | [NbConvertApp] Writing 72350 bytes to __notebook__.ipynb
 stderr | [NbConvertApp] Converting notebook __notebook__.ipynb to html
 stderr | [NbConvertApp] Support files will be in __results___files/
 stderr | [NbConvertApp] Making directory __results___files
-stderr | [NbConvertApp] Writing 351386 bytes to __results__.html
+stderr | [NbConvertApp] Writing 355358 bytes to __results__.html
 --- log end ---
