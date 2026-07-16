@@ -1,0 +1,56 @@
+Raw log from the Kaggle kernel run that produced notebooks/03_model.ipynb's
+outputs and models/best.pt.
+
+Kernel: aviamin/aftermath-full-training (version 5)
+Dataset: aviamin/aftermath-xbd-hurricanes-raw
+Accelerator: GPU T4 x2
+Retrieved via: kaggle kernels output aviamin/aftermath-full-training
+
+--- log start ---
+stderr | 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+stderr | 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+stderr | 0.00s - to python to disable frozen modules.
+stderr | 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+stderr | 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+stderr | 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+stderr | 0.00s - to python to disable frozen modules.
+stderr | 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+stdout | Writing utils/xbd_labels.py
+stdout | Writing utils/cropping.py
+stdout | Writing utils/prepare.py
+stdout | Writing utils/dataset.py
+stdout | Writing utils/model.py
+stdout | Writing utils/training.py
+stdout | device: cuda
+stdout | train_storms: ['hurricane-harvey', 'hurricane-florence', 'hurricane-matthew']
+stdout | test_storms: ['hurricane-michael']
+stdout | Downloading: "https://download.pytorch.org/models/resnet18-f37072fd.pth" to /root/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth
+stderr |   0%|          | 0.00/44.7M [00:00<?, ?B/s]
+stderr |   0%|          | 0.00/44.7M [00:00<?, ?B/s] 22%|##2       | 9.88M/44.7M [00:00<00:00, 103MB/s]
+stderr |  22%|##2       | 9.88M/44.7M [00:00<00:00, 103MB/s] 57%|#####7    | 25.4M/44.7M [00:00<00:00, 138MB/s]
+stderr |  57%|#####7    | 25.4M/44.7M [00:00<00:00, 138MB/s] 93%|#########3| 41.4M/44.7M [00:00<00:00, 151MB/s]
+stderr |  93%|#########3| 41.4M/44.7M [00:00<00:00, 151MB/s]100%|##########| 44.7M/44.7M [00:00<00:00, 147MB/s]
+stderr | 100%|##########| 44.7M/44.7M [00:00<00:00, 147MB/s]
+stdout | probe forward pass ok, output shape: torch.Size([2, 4])
+stdout | Total crops: 64454
+stdout | train rows: 33600 val rows: 8400
+stdout | epoch 0 : train_loss= 0.94800334805534 val_loss= 0.8099219886461894
+stdout | epoch 1 : train_loss= 0.7992585824784778 val_loss= 0.8017706026349749
+stdout | epoch 2 : train_loss= 0.707374442531949 val_loss= 0.7800887305395944
+stdout | epoch 3 : train_loss= 0.6057722326261656 val_loss= 0.8309280492010571
+stdout | epoch 4 : train_loss= 0.48197597397225245 val_loss= 0.8961784068743388
+stdout | epoch 5 : train_loss= 0.38038259071253594 val_loss= 1.0900312617279235
+stdout | epoch 6 : train_loss= 0.28970884531381585 val_loss= 1.143996327377501
+stdout | epoch 7 : train_loss= 0.23178700180990355 val_loss= 1.3199674604620253
+stdout | Early stopping triggered
+stderr | /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+stderr |   cells[i][c] = re.sub('\\\\\|', '|', cell)
+stderr | /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+stderr |   text = re.sub(r'_', '\_', text) # Escape underscores in display text
+stderr | [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+stderr | [NbConvertApp] Writing 60304 bytes to __notebook__.ipynb
+stderr | [NbConvertApp] Converting notebook __notebook__.ipynb to html
+stderr | [NbConvertApp] Support files will be in __results___files/
+stderr | [NbConvertApp] Making directory __results___files
+stderr | [NbConvertApp] Writing 351386 bytes to __results__.html
+--- log end ---
