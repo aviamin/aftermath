@@ -110,7 +110,7 @@ on the examples it got wrong.
 This development machine has no CUDA GPU. A CPU benchmark showed the full
 training split would take many hours per epoch locally, so training was
 run instead on a free Kaggle GPU kernel
-([`aviamin/aftermath-full-training`](https://www.kaggle.com), GPU T4 x2)
+([`aviamin/aftermath-full-training`](https://www.kaggle.com/code/aviamin/aftermath-full-training), GPU T4 x2)
 against the same xBD data — training on the full (non-subsampled)
 33,600-row train / 8,400-row validation split.
 
@@ -179,3 +179,9 @@ pytest -v
 
 Python · PyTorch · torchvision · scikit-learn · pandas · NumPy · OpenCV ·
 Shapely · matplotlib · seaborn
+
+---
+
+See [`docs/superpowers/specs/2026-07-14-aftermath-design.md`](docs/superpowers/specs/2026-07-14-aftermath-design.md)
+for the full design writeup (data pipeline, model architecture, training/
+evaluation methodology, and testing scope).
