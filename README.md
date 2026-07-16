@@ -117,7 +117,7 @@ against the same xBD data — training on the full (non-subsampled)
 Best validation loss was **0.7801 at epoch 2**; early stopping triggered
 at epoch 7 after 5 non-improving epochs. Overfitting past epoch 2 is
 expected here, since this is full end-to-end fine-tuning with no frozen
-layers — the committed checkpoint (`models/best.pt`, not tracked in git;
+layers — the saved checkpoint (`models/best.pt`, not tracked in git;
 see `.gitignore`) is frozen at epoch 2's weights, not the later overfit
 ones.
 
