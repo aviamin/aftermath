@@ -2,6 +2,7 @@ Raw log from the Kaggle kernel run that produced notebooks/03_model.ipynb's
 outputs and models/best.pt.
 
 Kernel: aviamin/aftermath-full-training (version 5)
+Kernel URL: https://www.kaggle.com/code/aviamin/aftermath-full-training
 Dataset: aviamin/aftermath-xbd-hurricanes-raw
 Accelerator: GPU T4 x2
 Retrieved via: kaggle kernels output aviamin/aftermath-full-training
